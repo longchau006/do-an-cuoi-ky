@@ -7,25 +7,55 @@ import shutil
 import gzip
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
-from cryptography.fernet import Fernet
 from tabulate import tabulate
 import platform
 
 # Đường dẫn đến file dữ liệu MyFS và file metadata
 MYFS_PATH = "D:/MyFS.Dat"
 METADATA_PATH = "E:/MyFS_Metadata.json"
-BACKUP_PATH = "E:/MyFS_Backup.json"
+BACKUP_PATH = "E:/MyFS_backup.py"
+SOURCE_PATH = __file__
 
 # Cấu trúc metadata để lưu trữ thông tin về các file
 metadata = {
     "files": {},  # Thông tin về các file hiện có trong MyFS
-    "encryption_key": None,  # Khóa mã hóa mặc định
     "deleted_files": {}  # Lưu trữ các file đã xóa để có thể phục hồi
 }
+
+def calculate_hash(file_path):
+    """Tính toán mã hash của file."""
+    hash_func = hashlib.sha256()
+    with open(file_path, 'rb') as f:
+        while chunk := f.read(8192):
+            hash_func.update(chunk)
+    return hash_func.hexdigest()
+
+def create_backup():
+    """Tạo file backup của mã nguồn."""
+    shutil.copyfile(SOURCE_PATH, BACKUP_PATH)
+
+def check_integrity():
+    """Kiểm tra tính toàn vẹn của mã nguồn."""
+    if not os.path.exists(BACKUP_PATH):
+        create_backup()
+        return True
+
+    original_hash = calculate_hash(BACKUP_PATH)
+    current_hash = calculate_hash(SOURCE_PATH)
+    return original_hash == current_hash
+
+def restore_from_backup():
+    """Phục hồi mã nguồn từ file backup."""
+    shutil.copyfile(BACKUP_PATH, SOURCE_PATH)
 
 # Hàm khởi tạo MyFS, tạo file dữ liệu và file metadata nếu chưa tồn tại
 def initialize_myfs():
     global metadata
+
+    # Kiểm tra tính toàn vẹn của mã nguồn
+    if not check_integrity():
+        print("Mã nguồn bị thay đổi, phục hồi từ file backup...")
+        restore_from_backup()
 
     # Tạo file dữ liệu MyFS nếu chưa tồn tại
     if not os.path.exists(MYFS_PATH):
@@ -34,8 +64,6 @@ def initialize_myfs():
 
     # Tạo file metadata nếu chưa tồn tại
     if not os.path.exists(METADATA_PATH):
-        encryption_key = Fernet.generate_key()
-        metadata["encryption_key"] = encryption_key.decode()
         metadata["system_info"] = platform.uname()._asdict()  # Thêm thông tin hệ thống
         with open(METADATA_PATH, 'w') as f:
             json.dump(metadata, f)
@@ -44,6 +72,16 @@ def initialize_myfs():
         with open(METADATA_PATH, 'r') as f:
             metadata = json.load(f)
 
+    # Kiểm tra thông tin hệ thống
+    current_system_info = platform.uname()._asdict()
+    if metadata.get("system_info") != current_system_info:
+        print("This system is not authorized to use MyFS.")
+        exit()
+        
+     # Tạo file backup nếu chưa tồn tại
+   
+    if not os.path.exists(BACKUP_PATH):
+        create_backup()
     print("MyFS initialized successfully.")
 
 def set_myfs_password():
@@ -111,11 +149,6 @@ def decrypt_file(ciphertext, password, password_salt, iv):
 def hash_key(key):
     return hashlib.sha256(key.encode()).digest()
 
-# Hàm sao lưu metadata
-def backup_metadata():
-    shutil.copy(METADATA_PATH, BACKUP_PATH)
-    print("Metadata backup created.")
-
 # Hàm nhập file vào MyFS
 def import_file(file_path):
     if not os.path.exists(file_path):
@@ -180,7 +213,6 @@ def import_file(file_path):
     with open(METADATA_PATH, 'w') as f:
         json.dump(metadata, f, default=str)  # Sử dụng default=str để tuần tự hóa các thuộc tính file
 
-    backup_metadata()
     print(f"File {file_name} imported successfully.")
 
 # Hàm xuất file từ MyFS
@@ -218,7 +250,6 @@ def export_file(file_name, export_path=None):
         except Exception:
             print("Invalid password. Export failed.")
             return
-
 
     if export_path is None:
         export_path = os.path.join(file_info["directory"], file_name)
@@ -286,7 +317,6 @@ def change_password(file_name):
     with open(METADATA_PATH, 'w') as f:
         json.dump(metadata, f)
 
-    backup_metadata()
     print(f"Password for {file_name} updated successfully.")
 
 # Hàm liệt kê các file trong MyFS
@@ -329,7 +359,6 @@ def delete_file(file_name):
     with open(METADATA_PATH, 'w') as f:
         json.dump(metadata, f)
 
-    backup_metadata()
     print(f"File {file_name} deleted successfully.")
 
 # Hàm phục hồi file đã xóa
@@ -344,7 +373,6 @@ def restore_file(file_name):
     with open(METADATA_PATH, 'w') as f:
         json.dump(metadata, f)
 
-    backup_metadata()
     print(f"File {file_name} restored successfully.")
 
 # Hàm menu để người dùng tương tác với hệ thống
@@ -410,6 +438,7 @@ def menu():
             break
         else:
             print("Invalid choice. Please try again.")
+
 
 if __name__ == "__main__":
     initialize_myfs()
