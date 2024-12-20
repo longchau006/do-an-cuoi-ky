@@ -1,0 +1,15 @@
+PS D:\py\do an cuoi ky>
+PS D:\py\do an cuoi ky> pip install cryptography
+Collecting cryptography
+  Downloading cryptography-44.0.0-cp39-abi3-win_amd64.whl.metadata (5.7 kB)
+Collecting cffi>=1.12 (from cryptography)
+  Downloading cffi-1.17.1-cp313-cp313-win_amd64.whl.metadata (1.6 kB)
+Collecting pycparser (from cffi>=1.12->cryptography)
+Downloading cryptography-44.0.0-cp39-abi3-win_amd64.whl (3.2 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.2/3.2 MB 461.3 kB/s eta 0:00:00
+Downloading cffi-1.17.1-cp313-cp313-win_amd64.whl (182 kB)
+Using cached pycparser-2.22-py3-none-any.whl (117 kB)
+Installing collected packages: pycparser, cffi, cryptography
+Successfully installed cffi-1.17.1 cryptography-44.0.0 pycparser-2.22
+PS D:\py\do an cuoi ky>
+PS D:\py\do an cuoi ky>
