@@ -137,18 +137,22 @@ def import_file(file_path):
     with open(file_path, 'rb') as f:
         file_data = f.read()
 
-    password = input("Enter a password for this file (required for important files): ").strip()
-    if is_important and not password:
-        print("Password is required for important files.")
-        return
+    password = None
+    if is_important:
+        password = input("Enter a password for this file (required for important files): ").strip()
+        if not password:
+            print("Password is required for important files.")
+            return
 
+    # Nén dữ liệu nếu file không quan trọng
+    if not is_important:
+        file_data = gzip.compress(file_data)
+    
     if password:
         ciphertext, password_salt, iv = encrypt_file(file_data, password)
         encrypted = True
-        if not is_important:
-            ciphertext = gzip.compress(ciphertext)
     else:
-        ciphertext = gzip.compress(file_data)
+        ciphertext = file_data
         password_salt = None
         iv = None
         encrypted = False        
@@ -198,12 +202,7 @@ def export_file(file_name, export_path=None):
             return
 
     if file_info["compressed"]:
-        # print size of ciphertext
-        try:
-            print(f"Size of ciphertext: {len(ciphertext)} bytes")
-            file_data = gzip.decompress(ciphertext)
-        except Exception:
-            return
+        file_data = gzip.decompress(ciphertext)
 
     if file_info["encrypted"]:
         password = input("Enter the password for this file: ").strip()
