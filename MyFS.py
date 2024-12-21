@@ -168,7 +168,7 @@ def initialize_myfs():
 
     # Kiểm tra tính toàn vẹn của mã nguồn
     if not check_integrity():
-        print("Mã nguồn bị thay đổi, phục hồi từ file backup...")
+        print("The source code has been modified, restoring from backup file...")
         restore_from_backup()
 
     # Tạo file dữ liệu MyFS nếu chưa tồn tại
@@ -497,6 +497,7 @@ def menu():
         if not check_myfs_password():
             print("Invalid password. Exiting MyFS.")
             return
+        request_otp()
         authenticated = True
 
     while True:
@@ -555,6 +556,5 @@ def menu():
 
 
 if __name__ == "__main__":
-
     initialize_myfs()
     menu()
