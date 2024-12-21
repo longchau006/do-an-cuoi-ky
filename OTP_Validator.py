@@ -17,7 +17,7 @@ def decode_verification_token(token):
         data = json.loads(b64decode(token))
         return data["timestamp"], data["salt"], data["x"]
     except Exception as e:
-        print(f"Lỗi giải mã token: {e}")
+        print(f"Token decoding error: {e}")
         return None, None, None
 
 def verify_smartOTP(input_y, verification_token):
@@ -44,42 +44,42 @@ def handle_user_input(token, x):
     
     while attempts < max_attempts:
         try:
-            print(f"\nSố X của bạn là: {x}")
-            y = int(input("Nhập mã OTP 8 chữ số: "))
+            print(f"\nYour number X is: {x}")
+            y = int(input("Enter the 8-digit OTP code: "))
             current_time = time.time()
             
             # Kiểm tra thời gian
             if current_time - start_time > 20:
-                print("Hết thời gian! Vui lòng gửi yêu cầu OTP mới.")
-                sys.exit()
+                print("Time's up!")
+                exit()
             
             # Kiểm tra độ dài OTP
             if len(str(y)) != 8:
-                print("OTP phải có 8 chữ số!")
+                print("The OTP code must have 8 digits!")
                 attempts += 1
                 continue
             
             # Xác thực OTP
             if verify_smartOTP(y, token):
-                print("✓ Xác thực thành công!")
+                print("✓ Authentication successful!")
                 return
             else:
-                print("✗ Mã OTP không chính xác!")
+                print("✗ The OTP code is incorrect!")
                 attempts += 1
                 
         except ValueError:
             current_time = time.time()            
             # Kiểm tra thời gian
             if current_time - start_time > 20:
-                print("Hết thời gian! Vui lòng gửi yêu cầu OTP mới.")
-                sys.exit()
+                print("Time's up!")
+                exit()
             
-            print("Dữ liệu không hợp lệ!")
+            print("Invalid data!")
             attempts += 1
             
     if attempts >= max_attempts:
-        print("\nBạn đã nhập sai quá 3 lần. Vui lòng gửi yêu cầu OTP mới.")
-        sys.exit()
+        print("\nYou have entered the wrong OTP more than 3 times.")
+        exit()
 
 def request_otp():
     """Mở kết nối đến server để gửi yêu cầu và nhận OTP"""
@@ -87,7 +87,7 @@ def request_otp():
         try:
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 s.connect((HOST, PORT))
-                print("Đã kết nối với server!")
+                print("Connected to the server!")
                 
                 # Gửi yêu cầu OTP
                 s.sendall(b"REQUEST_OTP\n")
@@ -95,7 +95,7 @@ def request_otp():
                 # Nhận dữ liệu từ server
                 data = s.recv(1024).decode()
                 if not data:
-                    print("Không nhận được phản hồi từ server.")
+                    print("No response received from the server.")
                     return
                 
                 # Xử lý dữ liệu nhận được
@@ -104,17 +104,17 @@ def request_otp():
                 token = json_data["token"]
                 
                 print("\n" + "="*50)
-                print("Nhận được OTP mới!")
+                print("Received a new OTP!")
                 
                 # Xử lý nhập liệu từ người dùng
                 handle_user_input(token, x)
                 break
                 
         except ConnectionRefusedError:
-            print("Không thể kết nối tới server. Kết nối lại sau 5 giây...")
+            print("Unable to connect to the server. Reconnecting in 5 seconds...")
             time.sleep(5)
         except Exception as e:
-            print(f"Lỗi: {e}")
+            print(f"Error: {e}")
 
 if __name__ == "__main__":
     request_otp()

@@ -64,12 +64,12 @@ def handle_client(conn, addr):
                 json_data = json.dumps(data)
                 conn.sendall(json_data.encode() + b"\n")
                 
-                print("Token đã được gửi tới máy xác thực")
+                print("The token has been sent to the authentication device.")
                 print(f"X: {x}")
                 print(f"OTP: {otp}")
                 
             else:
-                print("Nhận yêu cầu không hợp lệ từ CLIENT.")
+                print("Received an invalid request from the CLIENT.")
     except Exception as e:
         print(f"Error: {e}")
     finally:
@@ -81,7 +81,7 @@ def start_server():
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.bind((HOST, PORT))
     server.listen()
-    print(f"Server đang lắng nghe tại {HOST}:{PORT}")
+    print(f"The server is listening at... {HOST}:{PORT}")
     
     try:
         while True:
@@ -89,7 +89,7 @@ def start_server():
             client_thread = threading.Thread(target=handle_client, args=(conn, addr))
             client_thread.start()
     except KeyboardInterrupt:
-        print("\nServer đang dừng...")
+        print("\nThe server is stopping...")
     finally:
         server.close()
 
