@@ -4,6 +4,7 @@ import time
 import hashlib
 import hmac
 from base64 import b64decode
+import sys
 
 # Cấu hình
 HOST = '127.0.0.1'  # Server's hostname
@@ -50,7 +51,7 @@ def handle_user_input(token, x):
             # Kiểm tra thời gian
             if current_time - start_time > 20:
                 print("Hết thời gian! Vui lòng gửi yêu cầu OTP mới.")
-                return
+                sys.exit()
             
             # Kiểm tra độ dài OTP
             if len(str(y)) != 8:
@@ -71,13 +72,14 @@ def handle_user_input(token, x):
             # Kiểm tra thời gian
             if current_time - start_time > 20:
                 print("Hết thời gian! Vui lòng gửi yêu cầu OTP mới.")
-                return
+                sys.exit()
             
             print("Dữ liệu không hợp lệ!")
             attempts += 1
             
     if attempts >= max_attempts:
         print("\nBạn đã nhập sai quá 3 lần. Vui lòng gửi yêu cầu OTP mới.")
+        sys.exit()
 
 def request_otp():
     """Mở kết nối đến server để gửi yêu cầu và nhận OTP"""
@@ -116,3 +118,4 @@ def request_otp():
 
 if __name__ == "__main__":
     request_otp()
+    print("Continue.......")
