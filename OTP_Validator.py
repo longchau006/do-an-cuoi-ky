@@ -9,7 +9,7 @@ import sys
 # Cấu hình
 HOST = '127.0.0.1'  # Server's hostname
 PORT = 65432        # Port đã cấu hình trên server
-SECRET_KEY = "This_is_a_very_long_and_secure_secret_key_2024"  # Phải giống với server
+SECRET_KEY = "AnToanPhucHoiDuLieu_2024"  # Phải giống với server
 
 def decode_verification_token(token):
     """Giải mã token để lấy thông tin xác thực"""

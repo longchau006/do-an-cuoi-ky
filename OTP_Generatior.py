@@ -11,7 +11,7 @@ import threading
 # Cấu hình
 HOST = '127.0.0.1'  # Localhost
 PORT = 65432        # Port để lắng nghe
-SECRET_KEY = "This_is_a_very_long_and_secure_secret_key_2024"
+SECRET_KEY = "AnToanPhucHoiDuLieu_2024"
 SALT_LENGTH = 16
 
 def make_smartOTP(seed_x):
