@@ -18,7 +18,7 @@ def find_images_in_vol(vol_path, output_dir):
             footer = sig["footer"]
             start_idx = 0 
 
-            while start_idx < len(data):=
+            while start_idx < len(data):
 
                 header_idx = data.find(header, start_idx)
                 if header_idx == -1:
