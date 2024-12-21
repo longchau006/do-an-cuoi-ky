@@ -81,35 +81,38 @@ def handle_user_input(token, x):
 
 def request_otp():
     """Mở kết nối đến server để gửi yêu cầu và nhận OTP"""
-    try:
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.connect((HOST, PORT))
-            print("Đã kết nối với server!")
-            
-            # Gửi yêu cầu OTP
-            s.sendall(b"REQUEST_OTP\n")
-            
-            # Nhận dữ liệu từ server
-            data = s.recv(1024).decode()
-            if not data:
-                print("Không nhận được phản hồi từ server.")
-                return
-            
-            # Xử lý dữ liệu nhận được
-            json_data = json.loads(data)
-            x = json_data["x"]
-            token = json_data["token"]
-            
-            print("\n" + "="*50)
-            print("Nhận được OTP mới!")
-            
-            # Xử lý nhập liệu từ người dùng
-            handle_user_input(token, x)
-            
-    except ConnectionRefusedError:
-        print("Không thể kết nối tới server. Vui lòng thử lại sau.")
-    except Exception as e:
-        print(f"Lỗi: {e}")
+    while True:
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.connect((HOST, PORT))
+                print("Đã kết nối với server!")
+                
+                # Gửi yêu cầu OTP
+                s.sendall(b"REQUEST_OTP\n")
+                
+                # Nhận dữ liệu từ server
+                data = s.recv(1024).decode()
+                if not data:
+                    print("Không nhận được phản hồi từ server.")
+                    return
+                
+                # Xử lý dữ liệu nhận được
+                json_data = json.loads(data)
+                x = json_data["x"]
+                token = json_data["token"]
+                
+                print("\n" + "="*50)
+                print("Nhận được OTP mới!")
+                
+                # Xử lý nhập liệu từ người dùng
+                handle_user_input(token, x)
+                break
+                
+        except ConnectionRefusedError:
+            print("Không thể kết nối tới server. Kết nối lại sau 5 giây...")
+            time.sleep(5)
+        except Exception as e:
+            print(f"Lỗi: {e}")
 
 if __name__ == "__main__":
     request_otp()
